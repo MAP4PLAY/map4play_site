@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+   <head>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+      <title>Contact</title>
+      <meta name="keywords" content="">
+      <meta name="description" content="">
+      <meta name="author" content="">
+      <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+      <link rel="stylesheet" type="text/css" href="css/style.css">
+      <link rel="stylesheet" href="css/responsive.css">
+      <link rel="icon" href="imagens/fevicon.png" type="image/gif" />
+      <link rel="stylesheet" href="css/jquery.mCustomScrollbar.min.css">
+      <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+      <link href="https://fonts.googleapis.com/css?family=Poppins:400,700|Roboto:400,700&display=swap" rel="stylesheet"> 
+      <link rel="stylesheet" href="css/owl.carousel.min.css">
+      <link rel="stylesheet" href="css/owl.theme.default.min.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css" media="screen">
+      <style>
+        .alert {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .form-error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+      </style>
+   </head>
+   <body>
+      <div class="header_section">
+         <div class="container-fluid">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+               <a class="navbar-brand" href="index.html"><img src="imagens/LOGO_BUSSOLA.png"></a>
+               <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+               <span class="navbar-toggler-icon"></span>
+               </button>
+               <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                  <ul class="navbar-nav mr-auto">
+                     <li class="nav-item active">
+                        <a class="nav-link" href="index.html">início</a>
+                     </li>
+                     <li class="nav-item">
+                        <a class="nav-link" href="about.html">Sobre</a>
+                     </li>
+                     <li class="nav-item">
+                        <a class="nav-link" href="services.php">Quadras</a>
+                     </li>
+                     <li class="nav-item">
+                        <a class="nav-link" href="client.html">Avaliações</a>
+                     </li>
+                     <li class="nav-item">
+                        <a class="nav-link" href="duvidas.html">Dúvidas</a>
+                     </li>
+                     <li class="nav-item">
+                        <a class="nav-link" href="Contact.html">Contato</a>
+                     </li>
+                  </ul>
+                  <form class="form-inline my-2 my-lg-0">
+                     <div class="user_icon"><a href="#"><i class="fa fa-user" aria-hidden="true"></i></a></div>
+                     <div class="user_icon"><a href="#"><i class="fa fa-search" aria-hidden="true"></i></a></div>
+                  </form>
+            </nav>
+         </div>
+      </div>
+
+      <div class="contact_section layout_padding">
+         <div class="container">
+            <h1 class="contact_taital">CONTATO</h1>
+            
+            <div id="alert-container"></div>
+            
+            <div class="contact_section_2">
+               <div class="row">
+                  <div class="col-sm-12">
+                     <div class="contact_main layout_padding">
+                        
+                        <form action="processa_contato_pg.php" method="POST" id="contactForm">
+                           <div class="form-group">
+                              <input type="text" class="email-bt" placeholder="Nome" name="Nome" id="nome" required maxlength="100">
+                              <div class="form-error" id="nome-error"></div>
+                           </div>
+                           <div class="form-group">
+                              <input type="text" class="email-bt" placeholder="Celular" name="Celular" id="celular" maxlength="20">
+                              <div class="form-error" id="celular-error"></div>
+                           </div>
+                           <div class="form-group">
+                              <input type="email" class="email-bt" placeholder="E-mail" name="E-mail" id="email" maxlength="100">
+                              <div class="form-error" id="email-error"></div>
+                           </div>
+                           <div class="form-group">
+                              <textarea class="massage-bt" placeholder="Mensagem" rows="5" id="mensagem" name="Mensagem" required maxlength="1000"></textarea>
+                              <div class="form-error" id="mensagem-error"></div>
+                           </div>
+                           <div class="send_bt">
+                           <div class="readmore_bt"><a href="services_pg.php">Enviar Agora</a></div>
+                           </div>
+                        </form>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+    
+      <div class="footer_section">
+         <div class="location_bg">
+            <div class="container">
+               <div class="location_main">
+                  <ul>
+                     <li>
+                        <a href="#"><img src="imagens/mail-icon.png">
+                        <span class="padding_15">map4play@gmail.com</span></a>
+                     </li>
+                  </ul>
+               </div>
+            </div>
+         </div>
+         <div class="map_main">
+            <div class="map-responsive">
+              <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d467692.3958359975!2d-46.92497403286758!3d-23.681434532524257!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce448183a461d1%3A0x9ba94b08ff335bae!2zU8OjbyBQYXVsbywgU1A!5e0!3m2!1spt-BR!2sbr!4v1743395308399!5m2!1spt-BR!2sb" width="600" height="400" frameborder="0" style="border:0; width: 100%;" allowfullscreen=""></iframe>
+            </div>
+         </div>
+      </div>
+      <div class="copyright_section">
+         <div class="container">
+            <p class="copyright_text">MAP 4 PLAY © 2025 Todos os direitos reservados.
+         </div>
+      </div>
+
+      <script src="js/jquery.min.js"></script>
+      <script src="js/popper.min.js"></script>
+      <script src="js/bootstrap.bundle.min.js"></script>
+      <script src="js/jquery-3.0.0.min.js"></script>
+      <script src="js/plugin.js"></script>
+      <script src="js/jquery.mCustomScrollbar.concat.min.js"></script>
+      <script src="js/custom.js"></script>
+      <script src="js/owl.carousel.js"></script>
+      
+      <script>
+         document.addEventListener('DOMContentLoaded', function() {
+            showAlertMessage();
+            setupFormValidation();
+         });
+
+         function showAlertMessage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const alertContainer = document.getElementById('alert-container');
+            
+            const messages = {
+               'sucesso=1': {
+                  type: 'success',
+                  text: 'Mensagem enviada com sucesso! Entraremos em contato em breve.'
+               },
+               'erro=campos_obrigatorios': {
+                  type: 'error', 
+                  text: 'Nome e mensagem são obrigatórios!'
+               },
+               'erro=email_invalido': {
+                  type: 'error',
+                  text: 'Email inválido!'
+               },
+               'erro=nome_longo': {
+                  type: 'error',
+                  text: 'Nome muito longo! Máximo 100 caracteres.'
+               },
+               'erro=mensagem_longa': {
+                  type: 'error',
+                  text: 'Mensagem muito longa! Máximo 1000 caracteres.'
+               },
+               'erro=celular_longo': {
+                  type: 'error',
+                  text: 'Celular muito longo! Máximo 20 caracteres.'
+               },
+               'erro=email_longo': {
+                  type: 'error',
+                  text: 'Email muito longo! Máximo 100 caracteres.'
+               },
+               'erro=banco_dados': {
+                  type: 'error',
+                  text: 'Erro interno do sistema. Tente novamente mais tarde.'
+               }
+            };
+
+            for (const [key, value] of Object.entries(messages)) {
+               if (urlParams.toString() === key) {
+                  const alertDiv = document.createElement('div');
+                  alertDiv.className = `alert alert-${value.type}`;
+                  alertDiv.textContent = value.text;
+                  alertContainer.appendChild(alertDiv);
+                  window.history.replaceState({}, document.title, window.location.pathname);
+                  setTimeout(() => {
+                     alertDiv.remove();
+                  }, 5000);
+                  break;
+               }
+            }
+         }
+
+         function setupFormValidation() {
+            const form = document.getElementById('contactForm');
+            const nomeInput = document.getElementById('nome');
+            const mensagemInput = document.getElementById('mensagem');
+            const celularInput = document.getElementById('celular');
+            const emailInput = document.getElementById('email');
+
+            nomeInput.addEventListener('input', function() {
+               const errorElement = document.getElementById('nome-error');
+               if (this.value.length > 100) {
+                  errorElement.textContent = 'Nome deve ter no máximo 100 caracteres';
+                  errorElement.style.display = 'block';
+               } else {
+                  errorElement.style.display = 'none';
+               }
+            });
+
+            mensagemInput.addEventListener('input', function() {
+               const errorElement = document.getElementById('mensagem-error');
+               if (this.value.length > 1000) {
+                  errorElement.textContent = 'Mensagem deve ter no máximo 1000 caracteres';
+                  errorElement.style.display = 'block';
+               } else {
+                  errorElement.style.display = 'none';
+               }
+            });
+
+            celularInput.addEventListener('input', function() {
+               const errorElement = document.getElementById('celular-error');
+               if (this.value.length > 20) {
+                  errorElement.textContent = 'Celular deve ter no máximo 20 caracteres';
+                  errorElement.style.display = 'block';
+               } else {
+                  errorElement.style.display = 'none';
+               }
+            });
+
+            emailInput.addEventListener('input', function() {
+               const errorElement = document.getElementById('email-error');
+               if (this.value.length > 100) {
+                  errorElement.textContent = 'Email deve ter no máximo 100 caracteres';
+                  errorElement.style.display = 'block';
+               } else if (this.value && !this.value.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                  errorElement.textContent = 'Formato de email inválido';
+                  errorElement.style.display = 'block';
+               } else {
+                  errorElement.style.display = 'none';
+               }
+            });
+
+            form.addEventListener('submit', function(e) {
+               let isValid = true;
+
+               if (!nomeInput.value.trim()) {
+                  document.getElementById('nome-error').textContent = 'Nome é obrigatório';
+                  document.getElementById('nome-error').style.display = 'block';
+                  isValid = false;
+               }
+
+               if (!mensagemInput.value.trim()) {
+                  document.getElementById('mensagem-error').textContent = 'Mensagem é obrigatória';
+                  document.getElementById('mensagem-error').style.display = 'block';
+                  isValid = false;
+               }
+
+               if (!isValid) {
+                  e.preventDefault();
+               }
+            });
+         }
+
+         $('.owl-carousel').owlCarousel({
+            loop:true,
+            margin:35,
+            nav:true,
+            center: true,
+            responsive:{
+              0:{
+                 items:1,
+                 margin:0
+              },
+              575:{
+                 items:1,
+                 margin:0
+              },
+              768:{
+                 items:3,
+                 margin:0
+              },
+              1000:{
+                 items:3
+              }
+            }
+         });   
+      </script>   
+   </body>
+</html>

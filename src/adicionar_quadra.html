@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar Quadra - MAP 4 PLAY</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #df8804 0%, #b1b342 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 { color: #333; margin-bottom: 10px; text-align: center; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #333; font-weight: 600; }
+        input[type="text"], input[type="number"], textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: #667eea; }
+        textarea { resize: vertical; min-height: 100px; }
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .checkbox-item { display: flex; align-items: center; }
+        .checkbox-item input[type="checkbox"] { width: auto; margin-right: 8px; }
+        .btn-container { display: flex; gap: 10px; margin-top: 30px; }
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .btn-secondary:disabled { background: #a0a0a0; cursor: not-allowed; }
+        .map-help {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .map-help ul { margin: 10px 0; padding-left: 20px; }
+        .success-message, .error-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            color: white;
+        }
+        .success-message { background: #4CAF50; }
+        .error-message { background: #f44336; }
+        .required { color: red; }
+        #map { background: #f8f9fa; border: 2px solid #e0e0e0; }
+        .search-container { display: flex; gap: 10px; margin-bottom: 10px; }
+        .search-container input { flex: 1; }
+        .search-container button { flex: 0 0 auto; white-space: nowrap; }
+        #coordenadasSelecionadas {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border-left: 4px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Adicionar Nova Quadra</h1>
+        <p class="subtitle">Preencha todos os dados da quadra esportiva</p>
+
+        <div class="success-message" id="successMessage">Quadra adicionada com sucesso!</div>
+        <div class="error-message" id="errorMessage"></div>
+
+        <form id="formQuadra">
+            <div class="form-group">
+                <label>Nome da Quadra <span class="required">*</span></label>
+                <input type="text" name="nome_quadra" required placeholder="Ex: Quadra do Parque Ibirapuera">
+            </div>
+
+            <div class="form-group">
+                <label>Descrição</label>
+                <textarea name="descricao" placeholder="Descreva a quadra, suas características e condições..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Endereço Completo <span class="required">*</span></label>
+                <input type="text" name="endereco" required placeholder="Ex: Av. Pedro Álvares Cabral, s/n">
+            </div>
+
+            <div class="form-group">
+                <label>Bairro</label>
+                <input type="text" name="bairro" placeholder="Ex: Vila Mariana">
+            </div>
+
+            <div class="form-group">
+                <label>Zona <span class="required">*</span></label>
+                <select name="zona" required>
+                    <option value="">Selecione...</option>
+                    <option value="Zona Leste">Zona Leste</option>
+                    <option value="Zona Oeste">Zona Oeste</option>
+                    <option value="Zona Norte">Zona Norte</option>
+                    <option value="Zona Sul">Zona Sul</option>
+                    <option value="Centro">Centro</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>CEP</label>
+                <input type="text" name="cep" placeholder="00000-000" maxlength="9">
+            </div>
+
+            <div class="form-group">
+                <label>Localização no Mapa <span class="required">*</span></label>
+                
+                <div class="form-group">
+                    <label>Buscar por Endereço</label>
+                    <div class="search-container">
+                        <input type="text" id="enderecoBusca" placeholder="Digite o endereço completo...">
+                        <button type="button" id="btnBuscarEndereco" class="btn-secondary">Buscar</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Usar Minha Localização</label>
+                    <button type="button" id="btnMinhaLocalizacao" class="btn-secondary">📍 Usar Minha Localização</button>
+                </div>
+
+                <div id="map" style="height: 300px; width: 100%; border-radius: 8px; margin-top: 10px;"></div>
+                
+                <input type="hidden" name="latitude" id="latitude" required>
+                <input type="hidden" name="longitude" id="longitude" required>
+                
+                <div class="map-help">
+                    💡 <strong>Como usar:</strong> 
+                    <ul>
+                        <li>Digite o endereço e clique em "Buscar"</li>
+                        <li>Ou clique em "Usar Minha Localização"</li>
+                        <li>Arraste o marcador no mapa para ajustar a posição</li>
+                        <li>Clique em qualquer lugar do mapa para mover o marcador</li>
+                    </ul>
+                    <div id="coordenadasSelecionadas" style="display: none;">
+                        <strong>Coordenadas selecionadas:</strong>
+                        <span id="textoCoordenadas">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Tipo de Esporte <span class="required">*</span></label>
+                <select name="tipo_esporte" required>
+                    <option value="">Selecione...</option>
+                    <option value="Futebol">Futebol</option>
+                    <option value="Basquete">Basquete</option>
+                    <option value="Vôlei">Vôlei</option>
+                    <option value="Tênis">Tênis</option>
+                    <option value="Futsal">Futsal</option>
+                    <option value="Poliesportiva">Poliesportiva</option>
+                    <option value="Outros">Outros</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Características da Quadra</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="acessivel" id="acessivel">
+                        <label for="acessivel" style="margin: 0;">Acessível para PcD</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="tem_rampa" id="tem_rampa">
+                        <label for="tem_rampa" style="margin: 0;">Possui Rampa</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="tem_banheiro_adaptado" id="tem_banheiro_adaptado">
+                        <label for="tem_banheiro_adaptado" style="margin: 0;">Banheiro Adaptado</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="tem_iluminacao" id="tem_iluminacao">
+                        <label for="tem_iluminacao" style="margin: 0;">Iluminação</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="tem_vestiario" id="tem_vestiario">
+                        <label for="tem_vestiario" style="margin: 0;">Vestiário</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="tem_arquibancada" id="tem_arquibancada">
+                        <label for="tem_arquibancada" style="margin: 0;">Arquibancada</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="cobertura" id="cobertura">
+                        <label for="cobertura" style="margin: 0;">Cobertura</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>URL da Foto</label>
+                <input type="text" name="link_foto" placeholder="https://exemplo.com/foto.jpg">
+            </div>
+
+            <div class="btn-container">
+                <button type="button" class="btn-secondary" onclick="limparFormulario()">Limpar</button>
+                <button type="submit" class="btn-primary">Adicionar Quadra</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let map, marker, coordenadasValidas = false;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializarMapa();
+        });
+
+        function inicializarMapa() {
+            const centroSaoPaulo = [-23.5505, -46.6333];
+            map = L.map('map').setView(centroSaoPaulo, 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            marker = L.marker(centroSaoPaulo, { draggable: true }).addTo(map);
+            marker.on('dragend', function(e) {
+                const position = marker.getLatLng();
+                atualizarCoordenadas(position.lat, position.lng);
+            });
+            map.on('click', function(e) {
+                marker.setLatLng(e.latlng);
+                atualizarCoordenadas(e.latlng.lat, e.latlng.lng);
+            });
+            atualizarCoordenadas(centroSaoPaulo[0], centroSaoPaulo[1]);
+        }
+
+        function atualizarCoordenadas(lat, lng) {
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+            document.getElementById('textoCoordenadas').textContent = `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`;
+            document.getElementById('coordenadasSelecionadas').style.display = 'block';
+            coordenadasValidas = validarCoordenadas(lat, lng);
+            if (!coordenadasValidas) {
+                document.getElementById('coordenadasSelecionadas').style.borderLeftColor = '#f44336';
+                document.getElementById('textoCoordenadas').innerHTML += ' <span style="color: #f44336; font-weight: bold;">(Fora de São Paulo)</span>';
+            } else {
+                document.getElementById('coordenadasSelecionadas').style.borderLeftColor = '#4CAF50';
+            }
+        }
+
+        document.getElementById('btnBuscarEndereco').addEventListener('click', function() {
+            const endereco = document.getElementById('enderecoBusca').value.trim();
+            if (!endereco) {
+                alert('Por favor, digite um endereço.');
+                return;
+            }
+            buscarCoordenadas(endereco);
+        });
+
+        document.getElementById('enderecoBusca').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('btnBuscarEndereco').click();
+            }
+        });
+
+        document.getElementById('btnMinhaLocalizacao').addEventListener('click', function() {
+            if (!navigator.geolocation) {
+                alert('Geolocalização não é suportada pelo seu navegador.');
+                return;
+            }
+            const btn = this;
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = 'Obtendo localização...';
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    marker.setLatLng([lat, lng]);
+                    map.setView([lat, lng], 15);
+                    atualizarCoordenadas(lat, lng);
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                },
+                function(error) {
+                    let mensagem = 'Erro ao obter localização: ';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            mensagem += 'Permissão negada pelo usuário.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            mensagem += 'Localização indisponível.';
+                            break;
+                        case error.TIMEOUT:
+                            mensagem += 'Tempo esgotado para obter localização.';
+                            break;
+                        default:
+                            mensagem += 'Erro desconhecido.';
+                    }
+                    alert(mensagem);
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                },
+                { timeout: 10000, enableHighAccuracy: true }
+            );
+        });
+
+        function buscarCoordenadas(endereco) {
+            const btn = document.getElementById('btnBuscarEndereco');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = 'Buscando...';
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(endereco + ', São Paulo, Brasil')}&limit=1&addressdetails=1`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        const lat = parseFloat(data[0].lat);
+                        const lng = parseFloat(data[0].lon);
+                        marker.setLatLng([lat, lng]);
+                        map.setView([lat, lng], 16);
+                        atualizarCoordenadas(lat, lng);
+                        const enderecoInput = document.querySelector('input[name="endereco"]');
+                        if (!enderecoInput.value.trim()) {
+                            enderecoInput.value = data[0].display_name.split(',')[0];
+                        }
+                    } else {
+                        alert('Endereço não encontrado. Tente ser mais específico (inclua "São Paulo").');
+                    }
+                })
+                .catch(error => {
+                    alert('Erro ao buscar endereço. Verifique sua conexão com a internet.');
+                    console.error('Erro na busca:', error);
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                });
+        }
+
+        function validarCoordenadas(lat, lng) {
+            const minLat = -24.0, maxLat = -23.0, minLng = -47.0, maxLng = -46.0;
+            return lat >= minLat && lat <= maxLat && lng >= minLng && lng <= maxLng;
+        }
+
+        document.getElementById('formQuadra').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const lat = parseFloat(document.getElementById('latitude').value);
+            const lng = parseFloat(document.getElementById('longitude').value);
+            if (isNaN(lat) || isNaN(lng)) {
+                alert('Por favor, selecione uma localização no mapa.');
+                return;
+            }
+            if (!validarCoordenadas(lat, lng)) {
+                alert('Localização fora de São Paulo. Por favor, selecione um local dentro da cidade.');
+                return;
+            }
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Salvando...';
+            const formData = new FormData(this);
+            const checkboxes = ['acessivel', 'tem_rampa', 'tem_banheiro_adaptado', 'tem_iluminacao', 'tem_vestiario', 'tem_arquibancada', 'cobertura'];
+            checkboxes.forEach(name => {
+                formData.set(name, formData.get(name) ? 'true' : 'false');
+            });
+            fetch('salvar_quadra.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                if (data.sucesso) {
+                    document.getElementById('successMessage').style.display = 'block';
+                    document.getElementById('errorMessage').style.display = 'none';
+                    limparFormulario();
+                    setTimeout(() => {
+                        document.getElementById('successMessage').style.display = 'none';
+                    }, 3000);
+                } else {
+                    document.getElementById('errorMessage').textContent = 'Erro: ' + data.mensagem;
+                    document.getElementById('errorMessage').style.display = 'block';
+                    document.getElementById('successMessage').style.display = 'none';
+                }
+            })
+            .catch(error => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                document.getElementById('errorMessage').textContent = 'Erro ao adicionar quadra: ' + error;
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('successMessage').style.display = 'none';
+            });
+        });
+
+        function limparFormulario() {
+            document.getElementById('formQuadra').reset();
+            const centroSaoPaulo = [-23.5505, -46.6333];
+            marker.setLatLng(centroSaoPaulo);
+            map.setView(centroSaoPaulo, 13);
+            document.getElementById('coordenadasSelecionadas').style.display = 'none';
+            document.getElementById('enderecoBusca').value = '';
+            coordenadasValidas = false;
+            atualizarCoordenadas(centroSaoPaulo[0], centroSaoPaulo[1]);
+        }
+
+        document.querySelector('input[name="cep"]').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 5) {
+                value = value.substring(0, 5) + '-' + value.substring(5, 8);
+            }
+            e.target.value = value;
+        });
+    </script>
+</body>
+</html>
