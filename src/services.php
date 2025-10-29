@@ -79,7 +79,7 @@
       <div class="header_section">
          <div class="container-fluid">
             <nav class="navbar navbar-expand-lg navbar-light bg-light">
-               <a class="navbar-brand" href="index.html"><img src="images/LOGO_BUSSOLA.png"></a>
+               <a class="navbar-brand" href="index.html"><img src="images/logo/logo_capa.png"></a>
                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                <span class="navbar-toggler-icon"></span>
                </button>
@@ -88,26 +88,13 @@
                      <li class="nav-item">
                         <a class="nav-link" href="index.html">Início</a>
                      </li>
-                     <li class="nav-item">
-                        <a class="nav-link" href="about.html">Sobre</a>
-                     </li>
                      <li class="nav-item active">
                         <a class="nav-link" href="services.php">Quadras</a>
                      </li>
                      <li class="nav-item">
-                        <a class="nav-link" href="client.html">Avaliações</a>
-                     </li>
-                     <li class="nav-item">
                         <a class="nav-link" href="duvidas.html">Dúvidas</a>
                      </li>
-                     <li class="nav-item">
-                        <a class="nav-link" href="contact.html">Contato</a>
-                     </li>
                   </ul>
-                  <form class="form-inline my-2 my-lg-0">
-                     <div class="user_icon"><a href="#"><i class="fa fa-user" aria-hidden="true"></i></a></div>
-                     <div class="user_icon"><a href="#"><i class="fa fa-search" aria-hidden="true"></i></a></div>
-                  </form>
                </div>
             </nav>
          </div>
