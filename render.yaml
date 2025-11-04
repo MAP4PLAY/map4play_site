@@ -1,0 +1,34 @@
+services:
+  # Serviço Web (PHP)
+  - type: web
+    name: map4play-web
+    env: docker
+    dockerfilePath: ./render.Dockerfile
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: map4play-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: map4play-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: map4play-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: map4play-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: map4play-db
+          property: password
+
+databases:
+  # Banco PostgreSQL
+  - name: map4play-db
+    databaseName: map4play
+    user: map4play_user
+    postgresMajorVersion: 16
