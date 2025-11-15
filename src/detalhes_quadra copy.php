@@ -102,12 +102,6 @@
             font-size: 18px;
             color: #666;
         }
-        .caracteristica-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 5px 0;
-        }
     </style>
 </head>
 <body>
@@ -240,51 +234,6 @@
                         dataFormatada = data.toLocaleDateString('pt-BR');
                     }
 
-                    // Construir características
-                    let caracteristicasHTML = '';
-                    
-                    // Características principais
-                    const caracteristicas = [
-                        { campo: 'acessivel', texto: 'Acessível para PcD' },
-                        { campo: 'tem_rampa', texto: 'Possui Rampa' },
-                        { campo: 'tem_banheiro_adaptado', texto: 'Banheiro Adaptado' },
-                        { campo: 'tem_iluminacao', texto: 'Iluminação' },
-                        { campo: 'tem_vestiario', texto: 'Vestiário' },
-                        { campo: 'tem_arquibancada', texto: 'Arquibancada' },
-                        { campo: 'cobertura', texto: 'Cobertura' },
-                        { campo: 'piso_tatil', texto: 'Piso Tátil' },
-                        { campo: 'elevador', texto: 'Elevador / Plataforma Elevatória' },
-                        { campo: 'estacionamento_reservado', texto: 'Vagas de Estacionamento Reservadas' },
-                        { campo: 'area_descanso', texto: 'Área de Contraste e/ou Descanso' },
-                        { campo: 'corrimao_duplo', texto: 'Corrimãos Duplos e/ou Guias Laterais' },
-                        { campo: 'sinalizacao_braille', texto: 'Placas Sinalizadas em Braille' },
-                        { campo: 'sinalizacao_visual', texto: 'Sinalização Visual de Alto Contraste' },
-                        { campo: 'material_libras', texto: 'Material de Informação em Libras' },
-                        { campo: 'mapa_tatil', texto: 'Mapa Tátil do Local' },
-                        { campo: 'banheiro_trocador', texto: 'Banheiro com Trocador para Crianças' },
-                        { campo: 'professores_capacitados', texto: 'Professores/Monitores Capacitados em Esporte Adaptado' },
-                        { campo: 'aulas_esporte_adaptado', texto: 'Aulas Regulares de Esporte Adaptado' },
-                        { campo: 'equipamentos_adaptados', texto: 'Equipamentos Disponíveis (Bolas, sinos, cadeiras de rodas esportivas)' },
-                        { campo: 'cadeira_rodas_disponivel', texto: 'Disponibilidade de Cadeira de Rodas para Uso Geral' },
-                        { campo: 'transporte_publico_acessivel', texto: 'Fácil Acesso por Transporte Público' },
-                        { campo: 'calcadas_acessiveis', texto: 'Calçadas Acessíveis no Entorno' },
-                        { campo: 'entrada_acessivel', texto: 'Acessibilidade da Entrada' }
-                    ];
-
-                    caracteristicas.forEach(carac => {
-                        if (quadra[carac.campo]) {
-                            caracteristicasHTML += `
-                                <div class="caracteristica-item">
-                                    <i class="fa fa-check" style="color: #4CAF50;"></i>
-                                    <span>${carac.texto}</span>
-                                </div>
-                            `;
-                        }
-                    });
-
-                    // Verificar se há características
-                    const temCaracteristicas = caracteristicas.some(carac => quadra[carac.campo]);
-
                     document.getElementById('conteudo-detalhes').innerHTML = `
                         <div class="row">
                             <div class="col-lg-6 col-md-12">
@@ -331,20 +280,6 @@
                                     <p style="font-size: 16px; line-height: 1.6;">${quadra.descricao}</p>
                                 </div>
                                 ` : ''}
-
-                                <!-- NOVA SEÇÃO: Características da Quadra -->
-                                <div class="info-card">
-                                    <h4><i class="fa fa-check-circle"></i> Características da Quadra</h4>
-                                    ${temCaracteristicas ? `
-                                    <div class="caracteristicas-lista" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; margin-top: 15px;">
-                                        ${caracteristicasHTML}
-                                    </div>
-                                    ` : `
-                                    <div style="text-align: center; color: #666; font-style: italic; padding: 20px;">
-                                        Nenhuma característica adicional informada para esta quadra.
-                                    </div>
-                                    `}
-                                </div>
 
                                 <div class="acoes-botoes">
                                     <button onclick="editarQuadra(${quadra.id})" class="btn-editar">
