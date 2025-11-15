@@ -1,11 +1,4 @@
 <?php
-/**
- * Script de inicialização do banco de dados
- * Acesse: https://seu-site.onrender.com/setup_database.php
- * 
- * ⚠️ IMPORTANTE: Delete este arquivo após executar!
- */
-
 header('Content-Type: text/html; charset=utf-8');
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -16,85 +9,131 @@ echo "<!DOCTYPE html>
     <meta charset='UTF-8'>
     <title>Setup Database - MAP4PLAY</title>
     <style>
-        body { font-family: Arial; max-width: 800px; margin: 50px auto; padding: 20px; }
-        .success { background: #d4edda; color: #155724; padding: 15px; margin: 10px 0; border-radius: 5px; }
-        .error { background: #f8d7da; color: #721c24; padding: 15px; margin: 10px 0; border-radius: 5px; }
-        .warning { background: #fff3cd; color: #856404; padding: 15px; margin: 10px 0; border-radius: 5px; }
-        pre { background: #f5f5f5; padding: 10px; border-radius: 5px; overflow-x: auto; }
+        body { font-family: Arial; max-width: 900px; margin: 30px auto; padding: 20px; background: #f5f5f5; }
+        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { background: #d4edda; color: #155724; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #28a745; }
+        .error { background: #f8d7da; color: #721c24; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #dc3545; }
+        .warning { background: #fff3cd; color: #856404; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #ffc107; }
+        .info { background: #d1ecf1; color: #0c5460; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #17a2b8; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; border: 1px solid #dee2e6; }
+        h1 { color: #333; border-bottom: 3px solid #f6815e; padding-bottom: 10px; }
+        h2 { color: #555; margin-top: 30px; }
+        code { background: #f8f9fa; padding: 2px 6px; border-radius: 3px; color: #e83e8c; }
     </style>
 </head>
 <body>
-    <h1>🏀 Setup Database - MAP4PLAY</h1>";
+<div class='container'>
+    <h1>Setup Database - MAP4PLAY</h1>";
 
 try {
-    // Carrega configuração
     if (!file_exists('config.php')) {
-        throw new Exception('❌ Arquivo config.php não encontrado!');
+        throw new Exception('Arquivo config.php não encontrado!');
     }
     
     include 'config.php';
     
-    echo "<div class='success'>✅ Configuração carregada</div>";
-    echo "<pre>Host: {$db_config['host']}\nDatabase: {$db_config['dbname']}\nUser: {$db_config['user']}</pre>";
+    echo "<div class='success'>Configuração carregada com sucesso</div>";
+    echo "<pre>Host: {$db_config['host']}\nPort: {$db_config['port']}\nDatabase: {$db_config['dbname']}\nUser: {$db_config['user']}</pre>";
     
-    // Conecta ao banco
     $dsn = "pgsql:host={$db_config['host']};port={$db_config['port']};dbname={$db_config['dbname']}";
     $conn = new PDO($dsn, $db_config['user'], $db_config['password']);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
-    echo "<div class='success'>✅ Conexão com PostgreSQL estabelecida</div>";
+    echo "<div class='success'>Conexão com PostgreSQL estabelecida</div>";
     
-    // Verifica versão PostgreSQL
     $version = $conn->query('SELECT version()')->fetchColumn();
-    echo "<div class='success'>🐘 PostgreSQL: " . substr($version, 0, 50) . "...</div>";
+    echo "<div class='success'>PostgreSQL: " . substr($version, 0, 80) . "...</div>";
     
-    // Ativa PostGIS
-    echo "<h2>1️⃣ Ativando PostGIS...</h2>";
-    $conn->exec('CREATE EXTENSION IF NOT EXISTS postgis');
+    echo "<h2>1. Verificando PostGIS...</h2>";
     
-    $postgis_version = $conn->query('SELECT PostGIS_version()')->fetchColumn();
-    echo "<div class='success'>✅ PostGIS ativo: {$postgis_version}</div>";
+    try {
+        $conn->exec('CREATE EXTENSION IF NOT EXISTS postgis');
+        
+        $postgis_version = $conn->query('SELECT PostGIS_version()')->fetchColumn();
+        echo "<div class='success'>PostGIS ATIVO: {$postgis_version}</div>";
+        $tem_postgis = true;
+        
+    } catch (PDOException $e) {
+        echo "<div class='error'>PostGIS NÃO disponível: " . $e->getMessage() . "</div>";
+        echo "<div class='warning'>
+            O Render não suporta PostGIS no plano gratuito.<br>
+            Vou criar a tabela SEM PostGIS (usando latitude/longitude simples).
+        </div>";
+        $tem_postgis = false;
+    }
     
-    // Cria tabela quadras
-    echo "<h2>2️⃣ Criando tabela 'quadras'...</h2>";
-    $conn->exec("
-        CREATE TABLE IF NOT EXISTS quadras (
-            id SERIAL PRIMARY KEY,
-            nome_quadra VARCHAR(255) NOT NULL,
-            descricao TEXT,
-            endereco VARCHAR(500) NOT NULL,
-            bairro VARCHAR(100),
-            zona VARCHAR(50) NOT NULL,
-            cep VARCHAR(10),
-            tipo_esporte VARCHAR(50) NOT NULL,
-            acessivel BOOLEAN DEFAULT FALSE,
-            tem_rampa BOOLEAN DEFAULT FALSE,
-            tem_banheiro_adaptado BOOLEAN DEFAULT FALSE,
-            tem_iluminacao BOOLEAN DEFAULT FALSE,
-            tem_vestiario BOOLEAN DEFAULT FALSE,
-            tem_arquibancada BOOLEAN DEFAULT FALSE,
-            cobertura BOOLEAN DEFAULT FALSE,
-            link_foto TEXT,
-            localizacao GEOGRAPHY(POINT, 4326),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ");
-    echo "<div class='success'>✅ Tabela 'quadras' criada</div>";
+    echo "<h2>2. Criando tabela 'quadras'...</h2>";
     
-    // Cria índices
-    echo "<h2>3️⃣ Criando índices...</h2>";
+    if ($tem_postgis) {
+        $conn->exec("
+            CREATE TABLE IF NOT EXISTS quadras (
+                id SERIAL PRIMARY KEY,
+                nome_quadra VARCHAR(255) NOT NULL,
+                descricao TEXT,
+                endereco VARCHAR(500) NOT NULL,
+                bairro VARCHAR(100),
+                zona VARCHAR(50) NOT NULL,
+                cep VARCHAR(10),
+                tipo_esporte VARCHAR(50) NOT NULL,
+                acessivel BOOLEAN DEFAULT FALSE,
+                tem_rampa BOOLEAN DEFAULT FALSE,
+                tem_banheiro_adaptado BOOLEAN DEFAULT FALSE,
+                tem_iluminacao BOOLEAN DEFAULT FALSE,
+                tem_vestiario BOOLEAN DEFAULT FALSE,
+                tem_arquibancada BOOLEAN DEFAULT FALSE,
+                cobertura BOOLEAN DEFAULT FALSE,
+                link_foto TEXT,
+                localizacao GEOGRAPHY(POINT, 4326),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ");
+        echo "<div class='success'>Tabela 'quadras' criada COM PostGIS</div>";
+        
+    } else {
+        $conn->exec("
+            CREATE TABLE IF NOT EXISTS quadras (
+                id SERIAL PRIMARY KEY,
+                nome_quadra VARCHAR(255) NOT NULL,
+                descricao TEXT,
+                endereco VARCHAR(500) NOT NULL,
+                bairro VARCHAR(100),
+                zona VARCHAR(50) NOT NULL,
+                cep VARCHAR(10),
+                tipo_esporte VARCHAR(50) NOT NULL,
+                acessivel BOOLEAN DEFAULT FALSE,
+                tem_rampa BOOLEAN DEFAULT FALSE,
+                tem_banheiro_adaptado BOOLEAN DEFAULT FALSE,
+                tem_iluminacao BOOLEAN DEFAULT FALSE,
+                tem_vestiario BOOLEAN DEFAULT FALSE,
+                tem_arquibancada BOOLEAN DEFAULT FALSE,
+                cobertura BOOLEAN DEFAULT FALSE,
+                link_foto TEXT,
+                latitude NUMERIC(10, 8) NOT NULL,
+                longitude NUMERIC(11, 8) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ");
+        echo "<div class='warning'>Tabela 'quadras' criada SEM PostGIS (usando latitude/longitude)</div>";
+        echo "<div class='info'>Você precisará ajustar os arquivos PHP para funcionarem sem PostGIS.</div>";
+    }
     
-    $conn->exec("CREATE INDEX IF NOT EXISTS idx_quadras_localizacao ON quadras USING GIST(localizacao)");
-    echo "<div class='success'>✅ Índice espacial criado (localizacao)</div>";
+    echo "<h2>3. Criando índices...</h2>";
+    
+    if ($tem_postgis) {
+        $conn->exec("CREATE INDEX IF NOT EXISTS idx_quadras_localizacao ON quadras USING GIST(localizacao)");
+        echo "<div class='success'>Índice espacial criado (GIST)</div>";
+    } else {
+        $conn->exec("CREATE INDEX IF NOT EXISTS idx_quadras_coords ON quadras(latitude, longitude)");
+        echo "<div class='success'>Índice criado (latitude/longitude)</div>";
+    }
     
     $conn->exec("CREATE INDEX IF NOT EXISTS idx_quadras_zona ON quadras(zona)");
-    echo "<div class='success'>✅ Índice criado (zona)</div>";
+    echo "<div class='success'>Índice criado (zona)</div>";
     
     $conn->exec("CREATE INDEX IF NOT EXISTS idx_quadras_tipo_esporte ON quadras(tipo_esporte)");
-    echo "<div class='success'>✅ Índice criado (tipo_esporte)</div>";
+    echo "<div class='success'>Índice criado (tipo_esporte)</div>";
     
-    // Cria tabela contatos (opcional)
-    echo "<h2>4️⃣ Criando tabela 'contatos' (opcional)...</h2>";
+    echo "<h2>4. Criando tabela 'contatos'...</h2>";
     $conn->exec("
         CREATE TABLE IF NOT EXISTS contatos (
             id SERIAL PRIMARY KEY,
@@ -105,157 +144,88 @@ try {
             data_contato TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ");
-    echo "<div class='success'>✅ Tabela 'contatos' criada</div>";
+    echo "<div class='success'>Tabela 'contatos' criada</div>";
     
-    // Verifica se já existem quadras
     $count = $conn->query("SELECT COUNT(*) FROM quadras")->fetchColumn();
     
+    echo "<h2>5. Verificando dados...</h2>";
+    
     if ($count == 0) {
-        echo "<h2>5️⃣ Inserindo dados de exemplo...</h2>";
-        
-        $conn->exec("
-            INSERT INTO quadras (
-                nome_quadra, descricao, endereco, bairro, zona, tipo_esporte,
-                acessivel, tem_iluminacao, tem_vestiario, link_foto,
-                localizacao
-            ) VALUES 
-            (
-                'Quadra do Parque Ibirapuera',
-                'Quadra poliesportiva com excelente estrutura no Parque Ibirapuera',
-                'Av. Pedro Álvares Cabral, s/n',
-                'Vila Mariana',
-                'Zona Sul',
-                'Poliesportiva',
-                true,
-                true,
-                true,
-                'https://images.unsplash.com/photo-1589487391730-58f20eb2c308?w=500',
-                ST_SetSRID(ST_MakePoint(-46.6575, -23.5875), 4326)::geography
-            ),
-            (
-                'CEU Paz',
-                'Centro Educacional Unificado com quadra coberta',
-                'Rua Haparanda, 75',
-                'Brasilândia',
-                'Zona Norte',
-                'Futsal',
-                true,
-                true,
-                false,
-                'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=500',
-                ST_SetSRID(ST_MakePoint(-46.6883, -23.4667), 4326)::geography
-            ),
-            (
-                'Quadra do Parque da Juventude',
-                'Quadra ao ar livre no Parque da Juventude',
-                'Av. Cruzeiro do Sul, 2630',
-                'Santana',
-                'Zona Norte',
-                'Basquete',
-                false,
-                false,
-                false,
-                'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=500',
-                ST_SetSRID(ST_MakePoint(-46.6297, -23.5153), 4326)::geography
-            ),
-            (
-                'Quadra do SESC Itaquera',
-                'Quadra coberta com estrutura completa',
-                'Av. Fernando Espírito Santo Alves de Mattos, 1000',
-                'Itaquera',
-                'Zona Leste',
-                'Vôlei',
-                true,
-                true,
-                true,
-                'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=500',
-                ST_SetSRID(ST_MakePoint(-46.4556, -23.5411), 4326)::geography
-            ),
-            (
-                'Quadra da Vila Olímpia',
-                'Quadra moderna no coração da Vila Olímpia',
-                'Rua Funchal, 418',
-                'Vila Olímpia',
-                'Zona Oeste',
-                'Futebol',
-                false,
-                true,
-                false,
-                'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=500',
-                ST_SetSRID(ST_MakePoint(-46.6867, -23.5953), 4326)::geography
-            )
-        ");
-        
-        echo "<div class='success'>✅ 5 quadras de exemplo inseridas</div>";
+        echo "<div class='info'>Banco vazio. Nenhuma quadra cadastrada ainda.</div>";
+        echo "<div class='info'>Vá para <a href='adicionar_quadra.html'><strong>adicionar_quadra.html</strong></a> para cadastrar a primeira quadra!</div>";
     } else {
-        echo "<div class='warning'>⚠️ Já existem {$count} quadras cadastradas. Dados de exemplo não inseridos.</div>";
+        echo "<div class='warning'>Já existem <strong>{$count}</strong> quadra(s) cadastrada(s) no banco.</div>";
     }
     
-    // Resumo final
-    echo "<h2>📊 Resumo Final</h2>";
+    echo "<h2>Resumo Final</h2>";
     
     $total_quadras = $conn->query("SELECT COUNT(*) FROM quadras")->fetchColumn();
-    echo "<div class='success'>✅ Total de quadras: {$total_quadras}</div>";
     
-    // Testa consulta espacial
-    $stmt = $conn->query("
-        SELECT 
-            nome_quadra, 
-            zona,
-            ST_Y(localizacao::geometry) as lat,
-            ST_X(localizacao::geometry) as lng
-        FROM quadras 
-        LIMIT 3
-    ");
-    
-    echo "<h3>🗺️ Teste de Consulta Espacial (3 primeiras quadras):</h3>";
-    echo "<table border='1' cellpadding='10' style='border-collapse: collapse; width: 100%;'>";
-    echo "<tr><th>Nome</th><th>Zona</th><th>Latitude</th><th>Longitude</th></tr>";
-    
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        echo "<tr>";
-        echo "<td>{$row['nome_quadra']}</td>";
-        echo "<td>{$row['zona']}</td>";
-        echo "<td>" . number_format($row['lat'], 6) . "</td>";
-        echo "<td>" . number_format($row['lng'], 6) . "</td>";
-        echo "</tr>";
+    if ($total_quadras == 0) {
+        echo "<div class='info'>
+            <strong>Banco vazio - pronto para usar!</strong><br>
+            Total de quadras: <strong>0</strong>
+        </div>";
+    } else {
+        echo "<div class='success'>
+            <strong>Banco com dados</strong><br>
+            Total de quadras: <strong>{$total_quadras}</strong>
+        </div>";
     }
     
-    echo "</table>";
-    
-    // Mensagem final
-    echo "
-    <div class='success' style='margin-top: 30px;'>
-        <h2>🎉 Setup Concluído com Sucesso!</h2>
+    echo "<div class='success' style='margin-top: 40px; padding: 25px;'>
+        <h2 style='margin-top: 0;'>Setup Concluído!</h2>
         <p><strong>Próximos passos:</strong></p>
-        <ol>
-            <li>Teste adicionar uma quadra: <a href='adicionar_quadra.html'>adicionar_quadra.html</a></li>
-            <li>Veja a lista de quadras: <a href='services.php'>services.php</a></li>
-            <li><strong style='color: red;'>⚠️ IMPORTANTE: Delete este arquivo (setup_database.php) por segurança!</strong></li>
+        <ol style='line-height: 2;'>
+            <li>Acesse: <a href='adicionar_quadra.html' target='_blank'><strong>adicionar_quadra.html</strong></a></li>
+            <li>Cadastre uma quadra de teste</li>
+            <li>Veja em: <a href='services.php' target='_blank'><strong>services.php</strong></a></li>
+            <li><strong style='color: #dc3545;'>IMPORTANTE: Delete este arquivo por segurança!</strong></li>
         </ol>
     </div>";
     
+    if (!$tem_postgis) {
+        echo "<div class='warning' style='margin-top: 20px;'>
+            <h3>Atenção: Banco SEM PostGIS</h3>
+            <p>Os arquivos PHP foram criados esperando PostGIS. Você tem duas opções:</p>
+            <ul>
+                <li><strong>Opção 1:</strong> Upgrade no plano do Render para ter PostGIS</li>
+                <li><strong>Opção 2:</strong> Usar outro provedor (Supabase, Neon) que tem PostGIS grátis</li>
+                <li><strong>Opção 3:</strong> Me peça para adaptar os arquivos PHP (trabalho manual)</li>
+            </ul>
+        </div>";
+    }
+    
 } catch (PDOException $e) {
-    echo "<div class='error'>❌ Erro no banco de dados:<br><pre>" . htmlspecialchars($e->getMessage()) . "</pre></div>";
-    echo "<div class='warning'>
-        <strong>Possíveis soluções:</strong>
+    echo "<div class='error'>
+        <h3>Erro no Banco de Dados</h3>
+        <pre>" . htmlspecialchars($e->getMessage()) . "</pre>
+    </div>";
+    
+    echo "<div class='info'>
+        <h4>Possíveis Causas:</h4>
         <ul>
-            <li>Verifique se as variáveis de ambiente estão configuradas no Render</li>
-            <li>Confirme que o banco PostgreSQL está ativo</li>
-            <li>Verifique a External Database URL no painel do Render</li>
+            <li>Variáveis de ambiente não configuradas no Render</li>
+            <li>Banco de dados offline</li>
+            <li>Credenciais incorretas</li>
         </ul>
+        <p><strong>Verifique:</strong> Dashboard do Render → Seu banco → Environment Variables</p>
     </div>";
     
 } catch (Exception $e) {
-    echo "<div class='error'>❌ Erro:<br><pre>" . htmlspecialchars($e->getMessage()) . "</pre></div>";
+    echo "<div class='error'>
+        <h3>Erro Geral</h3>
+        <pre>" . htmlspecialchars($e->getMessage()) . "</pre>
+    </div>";
 }
 
 echo "
-    <hr>
-    <p style='text-align: center; color: #666; margin-top: 30px;'>
-        MAP 4 PLAY © 2025 | Setup Database Script<br>
+    <hr style='margin: 40px 0; border: none; border-top: 2px solid #dee2e6;'>
+    <p style='text-align: center; color: #6c757d; margin-top: 30px;'>
+        <strong>MAP 4 PLAY</strong> © 2025 | Setup Database Script<br>
         <small>Desenvolvido para o Projeto Integrador II - UNIVESP</small>
     </p>
+</div>
 </body>
 </html>";
 ?>
