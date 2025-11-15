@@ -74,30 +74,33 @@
             cursor: not-allowed;
          }
 
-                     /* Imagens quadradas e uniformes no carousel */
-            .owl-carousel .item .image_box {
-               width: 100%;
-               height: 280px; /* Altura fixa = quadrado */
-               overflow: hidden;
-               border-radius: 10px;
-               position: relative;
-            }
+           /* Remover fundo preto e fazer imagem preencher */
+.owl-carousel .item .image_box {
+    width: 100%;
+    height: 280px;
+    overflow: hidden;
+    border-radius: 10px;
+    background: transparent !important; /* Remove fundo preto */
+    padding: 0 !important;
+    margin: 0 !important;
+}
 
-            .owl-carousel .item .image_box img {
-               width: 100% !important;
-               height: 100% !important;
-               object-fit: cover !important; /* Cobre todo o espaço sem distorcer */
-               object-position: center !important; /* Centraliza a imagem */
-               border-radius: 0 !important;
-               display: block;
-            }
+.owl-carousel .item .image_box img {
+    width: 100% !important;
+    height: 280px !important; /* Mesma altura do container */
+    object-fit: cover !important;
+    object-position: center !important;
+    border-radius: 10px !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
 
-            /* Remove bordas circulares */
-            .owl-carousel .item img {
-               border-radius: 10px !important;
-               clip-path: none !important;
-            }
-
+/* Garantir que não há espaços extras */
+.owl-carousel .item img {
+    max-width: 100% !important;
+    max-height: 280px !important;
+}
 
 
       </style>
