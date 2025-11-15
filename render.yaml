@@ -1,5 +1,4 @@
 services:
-  # Serviço Web (PHP)
   - type: web
     name: map4play-web
     env: docker
@@ -27,7 +26,6 @@ services:
           property: password
 
 databases:
-  # Banco PostgreSQL
   - name: map4play-db
     databaseName: map4play
     user: map4play_user
