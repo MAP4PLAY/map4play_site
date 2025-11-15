@@ -1,6 +1,8 @@
 <?php
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
+
+// USA O MESMO CONFIG DOS OUTROS ARQUIVOS
 include 'config.php';
 
 try {
@@ -12,23 +14,27 @@ try {
         exit;
     }
     
+    // Conecta usando PDO
     $dsn = "pgsql:host={$db_config['host']};port={$db_config['port']};dbname={$db_config['dbname']}";
     $conn = new PDO($dsn, $db_config['user'], $db_config['password']);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
     $stmt = $conn->prepare("
         SELECT 
-            id, nome_quadra, endereco, bairro, zona, tipo_esporte, descricao, link_foto,
-            acessivel, tem_rampa, tem_banheiro_adaptado, tem_iluminacao, 
-            tem_vestiario, tem_arquibancada, cobertura,
-            piso_tatil, elevador, estacionamento_reservado, area_descanso,
-            corrimao_duplo, sinalizacao_braille, sinalizacao_visual, material_libras,
-            mapa_tatil, banheiro_trocador, professores_capacitados, aulas_esporte_adaptado,
-            equipamentos_adaptados, cadeira_rodas_disponivel, transporte_publico_acessivel,
-            calcadas_acessiveis, entrada_acessivel,
+            id,
+            nome_quadra,
+            endereco,
+            bairro,
+            zona,
+            tipo_esporte,
+            descricao,
+            link_foto,
+            acessivel,
+            tem_iluminacao,
+            tem_vestiario,
             ST_Y(localizacao::geometry) as latitude,
             ST_X(localizacao::geometry) as longitude,
-            created_at as data_cadastro
+            created_at
         FROM quadras 
         WHERE id = :id
     ");
@@ -39,20 +45,10 @@ try {
     $quadra = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($quadra) {
-        // Converter TODOS os booleanos do PostgreSQL
-        $booleanFields = [
-            'acessivel', 'tem_rampa', 'tem_banheiro_adaptado', 'tem_iluminacao',
-            'tem_vestiario', 'tem_arquibancada', 'cobertura',
-            'piso_tatil', 'elevador', 'estacionamento_reservado', 'area_descanso',
-            'corrimao_duplo', 'sinalizacao_braille', 'sinalizacao_visual', 'material_libras',
-            'mapa_tatil', 'banheiro_trocador', 'professores_capacitados', 'aulas_esporte_adaptado',
-            'equipamentos_adaptados', 'cadeira_rodas_disponivel', 'transporte_publico_acessivel',
-            'calcadas_acessiveis', 'entrada_acessivel'
-        ];
-        
-        foreach ($booleanFields as $field) {
-            $quadra[$field] = ($quadra[$field] === 't' || $quadra[$field] === true);
-        }
+        // Converter booleanos do PostgreSQL
+        $quadra['acessivel'] = ($quadra['acessivel'] === 't');
+        $quadra['tem_iluminacao'] = ($quadra['tem_iluminacao'] === 't');
+        $quadra['tem_vestiario'] = ($quadra['tem_vestiario'] === 't');
         
         echo json_encode($quadra);
     } else {
