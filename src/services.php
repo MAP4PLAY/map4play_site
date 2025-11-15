@@ -285,7 +285,7 @@
 
             itemDiv.innerHTML = `
                <div class="image_box">
-                  <img src="${quadra.link_foto || 'images/quadra-default.jpg'}" alt="${quadra.nome_quadra}" style="width: 100%; height: 250px; object-fit: cover;" />
+                  <img src="${quadra.link_foto || 'images/quadra-default.jpg'}" alt="${quadra.nome_quadra}" ///////<!-- style="width: 100%; height: 250px; object-fit: cover;" /> -->
                </div>
                <h3 class="sound_text">${quadra.nome_quadra}</h3>
                <div class="quadra-info">
