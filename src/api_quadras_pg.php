@@ -42,6 +42,10 @@ try {
                     acessivel,
                     tem_iluminacao,
                     tem_vestiario,
+                    tem_rampa,                    
+                    tem_banheiro_adaptado,        
+                    tem_arquibancada,             
+                    cobertura,                    
                     link_foto,
                     ST_Y(localizacao::geometry) as latitude,
                     ST_X(localizacao::geometry) as longitude,
@@ -126,6 +130,10 @@ try {
         $row['acessivel'] = ($row['acessivel'] === 't');
         $row['tem_iluminacao'] = ($row['tem_iluminacao'] === 't');
         $row['tem_vestiario'] = ($row['tem_vestiario'] === 't');
+        $row['tem_rampa'] = ($row['tem_rampa'] === 't');
+        $row['tem_banheiro_adaptado'] = ($row['tem_banheiro_adaptado'] === 't');
+        $row['tem_arquibancada'] = ($row['tem_arquibancada'] === 't');
+        $row['cobertura'] = ($row['cobertura'] === 't');
         
         $quadras[] = $row;
     }

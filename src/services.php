@@ -56,6 +56,10 @@
          .badge-success { background: #4CAF50; color: white; }
          .badge-warning { background: #ff9800; color: white; }
          .badge-info { background: #2196F3; color: white; }
+         .badge-rampa { background: #9C27B0; color: white; }          /* Roxo */
+         .badge-banheiro { background: #795548; color: white; }      /* Marrom */
+         .badge-arquibancada { background: #607D8B; color: white; }  /* Cinza azulado */
+         .badge-cobertura { background: #FF5722; color: white; }     /* Laranja escuro */
          .paginacao {
             text-align: center;
             margin: 30px 0;
@@ -285,6 +289,22 @@
             if (quadra.tem_vestiario) {
                badges += '<span class="badge badge-info">Vestiário</span>';
             }
+
+            // NOVAS TAGS ADICIONADAS ↓
+            if (quadra.tem_rampa) {
+                  badges += '<span class="badge badge-rampa">Rampa</span>';
+            }
+            if (quadra.tem_banheiro_adaptado) {
+                  badges += '<span class="badge badge-banheiro">Banheiro Adaptado</span>';
+            }
+            if (quadra.tem_arquibancada) {
+                  badges += '<span class="badge badge-arquibancada">Arquibancada</span>';
+            }
+            if (quadra.cobertura) {
+                  badges += '<span class="badge badge-cobertura">Cobertura</span>';
+            }
+
+            // termina aqui
 
             itemDiv.innerHTML = `
                <div class="image_box">
