@@ -73,6 +73,33 @@
             background: #ccc;
             cursor: not-allowed;
          }
+
+                     /* Imagens quadradas e uniformes no carousel */
+            .owl-carousel .item .image_box {
+               width: 100%;
+               height: 280px; /* Altura fixa = quadrado */
+               overflow: hidden;
+               border-radius: 10px;
+               position: relative;
+            }
+
+            .owl-carousel .item .image_box img {
+               width: 100% !important;
+               height: 100% !important;
+               object-fit: cover !important; /* Cobre todo o espaço sem distorcer */
+               object-position: center !important; /* Centraliza a imagem */
+               border-radius: 0 !important;
+               display: block;
+            }
+
+            /* Remove bordas circulares */
+            .owl-carousel .item img {
+               border-radius: 10px !important;
+               clip-path: none !important;
+            }
+
+
+
       </style>
    </head>
    <body>
