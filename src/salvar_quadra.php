@@ -1,149 +1,155 @@
 <?php
-// IMPORTANTE: Não coloque NADA antes desta linha (nem espaços em branco)
-error_reporting(0); // Desabilita warnings no output
-ini_set('display_errors', 0);
+/**
+ * Script para salvar nova quadra no banco de dados PostgreSQL
+ * Recebe dados via POST do formulário adicionar_quadra.html
+ */
 
+// inclui o arquivo de conexão
+include 'conexao_pg.php';
+
+// define o cabecalho como JSON
 header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
 
-// Buffer output para evitar qualquer saída prematura
-ob_start();
+// verifica se e uma requisicao post
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode([
+        'sucesso' => false,
+        'mensagem' => 'Método não permitido. Use POST.'
+    ]);
+    exit;
+}
 
-try {
-    // Verifica método
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        throw new Exception('Método não permitido. Use POST.');
-    }
+// obtem e valida os dados do formulario
+$nome_quadra = trim($_POST['nome_quadra'] ?? '');
+$descricao = trim($_POST['descricao'] ?? '');
+$endereco = trim($_POST['endereco'] ?? '');
+$bairro = trim($_POST['bairro'] ?? '');
+$zona = trim($_POST['zona'] ?? '');
+$cep = trim($_POST['cep'] ?? '');
+$tipo_esporte = trim($_POST['tipo_esporte'] ?? '');
+$link_foto = trim($_POST['link_foto'] ?? '');
 
-    // Carrega configuração
-    if (!file_exists('config.php')) {
-        throw new Exception('Arquivo de configuração não encontrado.');
-    }
-    
-    include 'config.php';
-    
-    if (empty($db_config['password'])) {
-        throw new Exception('Configuração de banco de dados inválida.');
-    }
+// coordenadas
+$latitude = floatval($_POST['latitude'] ?? 0);
+$longitude = floatval($_POST['longitude'] ?? 0);
 
-    // Conecta ao banco
-    $dsn = "pgsql:host={$db_config['host']};port={$db_config['port']};dbname={$db_config['dbname']}";
-    $conn = new PDO($dsn, $db_config['user'], $db_config['password']);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+// converte string 'true'/'false' tudo para booleano
+$acessivel = ($_POST['acessivel'] ?? 'false') === 'true' ? 't' : 'f';
+$tem_rampa = ($_POST['tem_rampa'] ?? 'false') === 'true' ? 't' : 'f';
+$tem_banheiro_adaptado = ($_POST['tem_banheiro_adaptado'] ?? 'false') === 'true' ? 't' : 'f';
+$tem_iluminacao = ($_POST['tem_iluminacao'] ?? 'false') === 'true' ? 't' : 'f';
+$tem_vestiario = ($_POST['tem_vestiario'] ?? 'false') === 'true' ? 't' : 'f';
+$tem_arquibancada = ($_POST['tem_arquibancada'] ?? 'false') === 'true' ? 't' : 'f';
+$cobertura = ($_POST['cobertura'] ?? 'false') === 'true' ? 't' : 'f';
 
-    // Obtém e valida dados
-    $nome_quadra = trim($_POST['nome_quadra'] ?? '');
-    $descricao = trim($_POST['descricao'] ?? '');
-    $endereco = trim($_POST['endereco'] ?? '');
-    $bairro = trim($_POST['bairro'] ?? '');
-    $zona = trim($_POST['zona'] ?? '');
-    $cep = trim($_POST['cep'] ?? '');
-    $tipo_esporte = trim($_POST['tipo_esporte'] ?? '');
-    $link_foto = trim($_POST['link_foto'] ?? '');
+// validacoes
+$erros = [];
 
-    $latitude = floatval($_POST['latitude'] ?? 0);
-    $longitude = floatval($_POST['longitude'] ?? 0);
+if (empty($nome_quadra)) {
+    $erros[] = 'Nome da quadra é obrigatório';
+}
 
-    // Converte booleanos
-    $acessivel = ($_POST['acessivel'] ?? 'false') === 'true' ? 't' : 'f';
-    $tem_rampa = ($_POST['tem_rampa'] ?? 'false') === 'true' ? 't' : 'f';
-    $tem_banheiro_adaptado = ($_POST['tem_banheiro_adaptado'] ?? 'false') === 'true' ? 't' : 'f';
-    $tem_iluminacao = ($_POST['tem_iluminacao'] ?? 'false') === 'true' ? 't' : 'f';
-    $tem_vestiario = ($_POST['tem_vestiario'] ?? 'false') === 'true' ? 't' : 'f';
-    $tem_arquibancada = ($_POST['tem_arquibancada'] ?? 'false') === 'true' ? 't' : 'f';
-    $cobertura = ($_POST['cobertura'] ?? 'false') === 'true' ? 't' : 'f';
+if (empty($endereco)) {
+    $erros[] = 'Endereço é obrigatório';
+}
 
-    // Validações
-    $erros = [];
+if (empty($zona)) {
+    $erros[] = 'Zona é obrigatória';
+}
 
-    if (empty($nome_quadra)) {
-        $erros[] = 'Nome da quadra é obrigatório';
-    }
+if (empty($tipo_esporte)) {
+    $erros[] = 'Tipo de esporte é obrigatório';
+}
 
-    if (empty($endereco)) {
-        $erros[] = 'Endereço é obrigatório';
-    }
+if ($latitude === 0.0 || $longitude === 0.0) {
+    $erros[] = 'Latitude e longitude são obrigatórias';
+}
 
-    if (empty($zona)) {
-        $erros[] = 'Zona é obrigatória';
-    }
+/*
+// valida coordenadas de sp capital
+if ($latitude < -24.0 || $latitude > -23.0) {
+    $erros[] = 'Latitude inválida para São Paulo';
+}
 
-    if (empty($tipo_esporte)) {
-        $erros[] = 'Tipo de esporte é obrigatório';
-    }
+if ($longitude < -47.0 || $longitude > -46.0) {
+    $erros[] = 'Longitude inválida para São Paulo';
+}
+*/
 
-    if ($latitude === 0.0 || $longitude === 0.0) {
-        $erros[] = 'Coordenadas são obrigatórias';
-    }
+// se houver erros, retorna
+if (!empty($erros)) {
+    echo json_encode([
+        'sucesso' => false,
+        'mensagem' => implode(', ', $erros)
+    ]);
+    exit;
+}
 
-    if (!empty($erros)) {
-        throw new Exception(implode(', ', $erros));
-    }
+// prepara o SQL com prepared statement 
+$sql = "INSERT INTO quadras (
+            nome_quadra,
+            descricao,
+            endereco,
+            bairro,
+            zona,
+            cep,
+            tipo_esporte,
+            acessivel,
+            tem_rampa,
+            tem_banheiro_adaptado,
+            tem_iluminacao,
+            tem_vestiario,
+            tem_arquibancada,
+            cobertura,
+            link_foto,
+            localizacao,
+            created_at
+        ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15,
+            ST_SetSRID(ST_MakePoint($16, $17), 4326)::geography,
+            NOW()
+        ) RETURNING id";
 
-    // Prepara SQL
-    $sql = "INSERT INTO quadras (
-                nome_quadra, descricao, endereco, bairro, zona, cep, tipo_esporte,
-                acessivel, tem_rampa, tem_banheiro_adaptado, tem_iluminacao, 
-                tem_vestiario, tem_arquibancada, cobertura, link_foto, 
-                localizacao, created_at
-            ) VALUES (
-                :nome_quadra, :descricao, :endereco, :bairro, :zona, :cep, :tipo_esporte,
-                :acessivel, :tem_rampa, :tem_banheiro_adaptado, :tem_iluminacao,
-                :tem_vestiario, :tem_arquibancada, :cobertura, :link_foto,
-                ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)::geography,
-                NOW()
-            ) RETURNING id";
+// array com todos os parametros
+$params = [
+    $nome_quadra,
+    $descricao,
+    $endereco,
+    $bairro,
+    $zona,
+    $cep,
+    $tipo_esporte,
+    $acessivel,
+    $tem_rampa,
+    $tem_banheiro_adaptado,
+    $tem_iluminacao,
+    $tem_vestiario,
+    $tem_arquibancada,
+    $cobertura,
+    $link_foto,
+    $longitude,  // prestar atencao aqui que eo postgis usa longitude/latitude
+    $latitude
+];
 
-    $stmt = $conn->prepare($sql);
-    
-    // Bind dos parâmetros
-    $stmt->bindValue(':nome_quadra', $nome_quadra, PDO::PARAM_STR);
-    $stmt->bindValue(':descricao', $descricao, PDO::PARAM_STR);
-    $stmt->bindValue(':endereco', $endereco, PDO::PARAM_STR);
-    $stmt->bindValue(':bairro', $bairro, PDO::PARAM_STR);
-    $stmt->bindValue(':zona', $zona, PDO::PARAM_STR);
-    $stmt->bindValue(':cep', $cep, PDO::PARAM_STR);
-    $stmt->bindValue(':tipo_esporte', $tipo_esporte, PDO::PARAM_STR);
-    $stmt->bindValue(':acessivel', $acessivel, PDO::PARAM_STR);
-    $stmt->bindValue(':tem_rampa', $tem_rampa, PDO::PARAM_STR);
-    $stmt->bindValue(':tem_banheiro_adaptado', $tem_banheiro_adaptado, PDO::PARAM_STR);
-    $stmt->bindValue(':tem_iluminacao', $tem_iluminacao, PDO::PARAM_STR);
-    $stmt->bindValue(':tem_vestiario', $tem_vestiario, PDO::PARAM_STR);
-    $stmt->bindValue(':tem_arquibancada', $tem_arquibancada, PDO::PARAM_STR);
-    $stmt->bindValue(':cobertura', $cobertura, PDO::PARAM_STR);
-    $stmt->bindValue(':link_foto', $link_foto, PDO::PARAM_STR);
-    $stmt->bindValue(':longitude', $longitude, PDO::PARAM_STR);
-    $stmt->bindValue(':latitude', $latitude, PDO::PARAM_STR);
+// Executa a query
+$result = pg_query_params($conn, $sql, $params);
 
-    $stmt->execute();
-    
-    $quadra_id = $stmt->fetchColumn();
-
-    // Limpa buffer e retorna JSON
-    ob_end_clean();
+if ($result) {
+    $row = pg_fetch_assoc($result);
+    $quadra_id = $row['id'];
     
     echo json_encode([
         'sucesso' => true,
         'mensagem' => 'Quadra adicionada com sucesso!',
         'id' => $quadra_id
-    ], JSON_UNESCAPED_UNICODE);
-
-} catch (PDOException $e) {
-    ob_end_clean();
-    http_response_code(500);
+    ]);
+} else {
     echo json_encode([
         'sucesso' => false,
-        'mensagem' => 'Erro no banco de dados: ' . $e->getMessage()
-    ], JSON_UNESCAPED_UNICODE);
-    
-} catch (Exception $e) {
-    ob_end_clean();
-    http_response_code(400);
-    echo json_encode([
-        'sucesso' => false,
-        'mensagem' => $e->getMessage()
-    ], JSON_UNESCAPED_UNICODE);
+        'mensagem' => 'Erro ao adicionar quadra: ' . pg_last_error($conn)
+    ]);
 }
 
-exit;
+// Fecha a conexão
+pg_close($conn);
 ?>
