@@ -233,6 +233,8 @@
                         badges += '<span class="badge badge-info">🚿 Vestiário</span>';
                     }
 
+                    
+
                     // Formatar data se existir
                     let dataFormatada = '';
                     if (quadra.data_cadastro) {

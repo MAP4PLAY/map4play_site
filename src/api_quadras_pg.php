@@ -105,6 +105,10 @@ try {
                     acessivel,
                     tem_iluminacao,
                     tem_vestiario,
+                    tem_rampa,                    
+                    tem_banheiro_adaptado,        
+                    tem_arquibancada,           
+                    cobertura,                    
                     link_foto,
                     ST_Y(localizacao::geometry) as latitude,
                     ST_X(localizacao::geometry) as longitude
