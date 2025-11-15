@@ -32,6 +32,10 @@ try {
             acessivel,
             tem_iluminacao,
             tem_vestiario,
+            tem_rampa,                    
+            tem_banheiro_adaptado,        
+            tem_arquibancada,            
+            cobertura,           
             ST_Y(localizacao::geometry) as latitude,
             ST_X(localizacao::geometry) as longitude,
             created_at
@@ -49,6 +53,10 @@ try {
         $quadra['acessivel'] = ($quadra['acessivel'] === 't');
         $quadra['tem_iluminacao'] = ($quadra['tem_iluminacao'] === 't');
         $quadra['tem_vestiario'] = ($quadra['tem_vestiario'] === 't');
+        $quadra['tem_rampa'] = ($quadra['tem_rampa'] === 't');
+        $quadra['tem_banheiro_adaptado'] = ($quadra['tem_banheiro_adaptado'] === 't');
+        $quadra['tem_arquibancada'] = ($quadra['tem_arquibancada'] === 't');
+        $quadra['cobertura'] = ($quadra['cobertura'] === 't');
         
         echo json_encode($quadra);
     } else {
