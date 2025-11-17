@@ -38,6 +38,8 @@ O objetivo do sistema é criar uma **plataforma web** para mapeamento quadras es
 ---
 
 ## 📂 Estrutura do projeto
+
+```
 MAP4PLAY/
 
 │── index.html # Página inicial
@@ -66,8 +68,7 @@ MAP4PLAY/
 
 │── README.md 
 
-yaml
-Copiar código
+```
 
 ---
 
@@ -90,7 +91,14 @@ http://localhost/MAP4PLAY
 
 Projeto desenvolvido por pelos  alunos do Grupo 013 como o parte das atividades acadêmicas.
 
-### Alunos: Descrever nossos nomes?????????????????
+### Alunos: 
+
+Camila Amaral de Paula Melo
+André Bomfim da Silva
+Helder Luiz Bachiega
+Veronica Pinheiro Adame
+Luciene Porto dos Santos
+
 
 📄 Licença
 
